@@ -1,13 +1,7 @@
 package com.kodilla.kodillalibrary.entities;
 
-import com.kodilla.kodillalibrary.domain.Book;
-import com.kodilla.kodillalibrary.domain.Copy;
-import com.kodilla.kodillalibrary.domain.Reader;
-import com.kodilla.kodillalibrary.domain.Rent;
-import com.kodilla.kodillalibrary.repository.RentRepository;
-import com.kodilla.kodillalibrary.service.BookService;
-import com.kodilla.kodillalibrary.service.CopyService;
-import com.kodilla.kodillalibrary.service.ReaderService;
+import com.kodilla.kodillalibrary.domain.*;
+import com.kodilla.kodillalibrary.repository.*;
 import com.kodilla.kodillalibrary.service.RentService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -17,21 +11,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest
 public class RentEntityTest {
 
     @Autowired
-    private BookService bookService;
+    private BookRepository bookRepository;
 
     @Autowired
-    private CopyService copyService;
+    private CopyRepository copyRepository;
 
     @Autowired
-    private ReaderService readerService;
+    private ReaderRepository readerRepository;
 
     @Autowired
     private RentRepository rentRepository;
@@ -53,15 +46,16 @@ public class RentEntityTest {
         Reader reader = Reader.builder()
                 .build();
 
-        bookService.saveBook(book);
-        copyService.saveCopy(copy);
-        readerService.saveReader(reader);
+        bookRepository.save(book);
+        copyRepository.save(copy);
+        readerRepository.save(reader);
 
         //When
-        rentService.rentABook(copy, reader);
-        List<Rent> rents = rentRepository.findAll();
+        assertDoesNotThrow(() ->
+                rentService.rentABook(copy, reader));
+
+        List<Rent> rents = (List<Rent>) rentRepository.findAll();
         Long rentId = rents.get(0).getRentId();
-        System.out.println(rentId);
 
         //Then
         assertTrue(rentRepository.existsById(rentId));
@@ -90,14 +84,15 @@ public class RentEntityTest {
         reader.getRents().add(rent);
         copy.setRent(rent);
 
-        bookService.saveBook(book);
-        readerService.saveReader(reader);
-        rentService.saveRent(rent);
-        List<Rent> rents = rentRepository.findAll();
+        bookRepository.save(book);
+        readerRepository.save(reader);
+        rentRepository.save(rent);
+        List<Rent> rents = (List<Rent>) rentRepository.findAll();
         Long rentId = rents.get(0).getRentId();
 
         //When
-        rentService.returnABook(rentId);
+        assertDoesNotThrow(() ->
+                rentService.returnABook(rentId));
 
         LocalDate rentReturnDate = rentRepository.findById(rentId).get().getReturnDate();
 

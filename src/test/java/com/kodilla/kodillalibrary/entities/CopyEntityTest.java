@@ -1,15 +1,10 @@
 package com.kodilla.kodillalibrary.entities;
 
-import com.kodilla.kodillalibrary.domain.Book;
-import com.kodilla.kodillalibrary.domain.Copy;
-import com.kodilla.kodillalibrary.domain.Reader;
-import com.kodilla.kodillalibrary.domain.Rent;
-import com.kodilla.kodillalibrary.repository.CopyRepository;
-import com.kodilla.kodillalibrary.repository.RentRepository;
-import com.kodilla.kodillalibrary.service.BookService;
+import com.kodilla.kodillalibrary.controller.exceptions.CopyCurrentlyRentedException;
+import com.kodilla.kodillalibrary.controller.exceptions.CopyNotFoundException;
+import com.kodilla.kodillalibrary.domain.*;
+import com.kodilla.kodillalibrary.repository.*;
 import com.kodilla.kodillalibrary.service.CopyService;
-import com.kodilla.kodillalibrary.service.ReaderService;
-import com.kodilla.kodillalibrary.service.RentService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +15,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @Transactional
 @SpringBootTest
 public class CopyEntityTest {
 
     @Autowired
-    private BookService bookService;
+    private BookRepository bookRepository;
 
     @Autowired
     private CopyRepository copyRepository;
@@ -35,13 +29,11 @@ public class CopyEntityTest {
     private CopyService copyService;
 
     @Autowired
-    private ReaderService readerService;
+    private ReaderRepository readerRepository;
 
     @Autowired
     private RentRepository rentRepository;
 
-    @Autowired
-    private RentService rentService;
 
     @Test
     void shouldNotDeleteCopy() {
@@ -67,13 +59,14 @@ public class CopyEntityTest {
 
         copy.setRent(rent);
         book.getCopies().add(copy);
-        readerService.saveReader(reader);
-        bookService.saveBook(book);
-        rentService.saveRent(rent);
-        copyService.saveCopy(copy);
+        readerRepository.save(reader);
+        bookRepository.save(book);
+        rentRepository.save(rent);
+        copyRepository.save(copy);
 
         //When
-        copyService.deleteCopyById(copy.getCopyId());
+        assertThrows(CopyCurrentlyRentedException.class, () ->
+                copyService.deleteCopyById(copy.getCopyId()));
 
         //Then
         assertTrue(copyRepository.findById(copy.getCopyId()).isPresent());
@@ -82,7 +75,7 @@ public class CopyEntityTest {
     }
 
     @Test
-    void shouldDeleteRentWhenDeletingCopy() {
+    void shouldDeleteRentWhenDeletingCopy() throws CopyNotFoundException, CopyCurrentlyRentedException {
 
         //Given
         Book book = Book.builder()
@@ -105,13 +98,14 @@ public class CopyEntityTest {
 
         copy.setRent(rent);
         book.getCopies().add(copy);
-        readerService.saveReader(reader);
-        bookService.saveBook(book);
-        rentService.saveRent(rent);
-        copyService.saveCopy(copy);
+        readerRepository.save(reader);
+        bookRepository.save(book);
+        rentRepository.save(rent);
+        copyRepository.save(copy);
 
         //When
-        copyService.deleteCopyById(copy.getCopyId());
+        assertDoesNotThrow(() ->
+                copyService.deleteCopyById(copy.getCopyId()));
 
         //Then
         assertFalse(copyRepository.findById(copy.getCopyId()).isPresent());
@@ -145,17 +139,17 @@ public class CopyEntityTest {
 
         copy.setRent(rent);
         book.getCopies().add(copy);
-        readerService.saveReader(reader);
-        bookService.saveBook(book);
-        rentService.saveRent(rent);
-        copyService.saveCopy(copy);
+        readerRepository.save(reader);
+        bookRepository.save(book);
+        rentRepository.save(rent);
+        copyRepository.save(copy);
 
         //When
         Copy savedCopy = copyRepository.save(copy);
         savedCopy.setStatus("rented");
 
-        List<Copy> updatedCopy = copyRepository.findAll();
-        List<Rent> updatedRent = rentRepository.findAll();
+        List<Copy> updatedCopy = (List<Copy>) copyRepository.findAll();
+        List<Rent> updatedRent = (List<Rent>) rentRepository.findAll();
 
         //Then
         assertEquals("rented", updatedCopy.get(0).getStatus());

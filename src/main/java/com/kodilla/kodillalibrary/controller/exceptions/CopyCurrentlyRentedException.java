@@ -1,7 +1,7 @@
 package com.kodilla.kodillalibrary.controller.exceptions;
 
-public class CopyCurrentlyRented extends Exception {
-    public CopyCurrentlyRented() {
+public class CopyCurrentlyRentedException extends Exception {
+    public CopyCurrentlyRentedException() {
         super("Copy is currently rented");
     }
 }

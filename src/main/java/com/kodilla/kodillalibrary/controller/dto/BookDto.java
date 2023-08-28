@@ -1,4 +1,4 @@
-package com.kodilla.kodillalibrary.domain.dto;
+package com.kodilla.kodillalibrary.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

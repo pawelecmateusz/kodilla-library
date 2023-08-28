@@ -1,7 +1,7 @@
 package com.kodilla.kodillalibrary.mapper;
 
 import com.kodilla.kodillalibrary.domain.Book;
-import com.kodilla.kodillalibrary.domain.dto.BookDto;
+import com.kodilla.kodillalibrary.controller.dto.BookDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BookMapper {
 
     public Book mapToBook(final BookDto bookDto) {

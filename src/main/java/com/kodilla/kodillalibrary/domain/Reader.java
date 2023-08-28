@@ -1,5 +1,6 @@
 package com.kodilla.kodillalibrary.domain;
 
+import com.kodilla.kodillalibrary.controller.exceptions.ReaderHasRentsException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,5 +38,12 @@ public class Reader {
     )
     @Builder.Default
     public List<Rent> rents = new ArrayList<>();
+
+    public boolean hasAnyRents() throws ReaderHasRentsException {
+        if (rents.size() > 0) {
+            throw new ReaderHasRentsException();
+        }
+        return false;
+    }
 
 }

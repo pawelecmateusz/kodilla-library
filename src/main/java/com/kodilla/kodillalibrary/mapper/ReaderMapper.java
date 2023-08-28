@@ -1,14 +1,12 @@
 package com.kodilla.kodillalibrary.mapper;
 
 import com.kodilla.kodillalibrary.domain.Reader;
-import com.kodilla.kodillalibrary.domain.dto.ReaderDto;
-import lombok.RequiredArgsConstructor;
+import com.kodilla.kodillalibrary.controller.dto.ReaderDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ReaderMapper {
 
     public Reader mapToReader(final ReaderDto readerDto) {

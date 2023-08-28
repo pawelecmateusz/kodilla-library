@@ -1,7 +1,8 @@
 package com.kodilla.kodillalibrary.mapper;
 
+import com.kodilla.kodillalibrary.controller.exceptions.BookNotFoundException;
 import com.kodilla.kodillalibrary.domain.Copy;
-import com.kodilla.kodillalibrary.domain.dto.CopyDto;
+import com.kodilla.kodillalibrary.controller.dto.CopyDto;
 import com.kodilla.kodillalibrary.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class CopyMapper {
 
     private final BookService bookService;
 
-    public Copy mapToCopy(final CopyDto copyDto) {
+    public Copy mapToCopy(final CopyDto copyDto) throws BookNotFoundException {
         return Copy.builder()
                 .copyId(copyDto.getCopyId())
                 .book(bookService.getBookById(copyDto.getBookId()))

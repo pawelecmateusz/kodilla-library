@@ -1,14 +1,9 @@
 package com.kodilla.kodillalibrary.entities;
 
-import com.kodilla.kodillalibrary.domain.Book;
-import com.kodilla.kodillalibrary.domain.Copy;
-import com.kodilla.kodillalibrary.domain.Reader;
-import com.kodilla.kodillalibrary.domain.Rent;
-import com.kodilla.kodillalibrary.repository.BookRepository;
-import com.kodilla.kodillalibrary.repository.CopyRepository;
+import com.kodilla.kodillalibrary.controller.exceptions.CopiesNotReturnedException;
+import com.kodilla.kodillalibrary.domain.*;
+import com.kodilla.kodillalibrary.repository.*;
 import com.kodilla.kodillalibrary.service.BookService;
-import com.kodilla.kodillalibrary.service.ReaderService;
-import com.kodilla.kodillalibrary.service.RentService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +25,10 @@ public class BookEntityTest {
     private CopyRepository copyRepository;
 
     @Autowired
-    private ReaderService readerService;
+    private ReaderRepository readerRepository;
 
     @Autowired
-    private RentService rentService;
-
+    private RentRepository rentRepository;
 
     @Test
     void shouldDeleteBookAndAllCopies() {
@@ -72,12 +66,14 @@ public class BookEntityTest {
         book.getCopies().add(copy2);
         book.getCopies().add(copy3);
 
-        bookService.saveBook(book);
-        readerService.saveReader(reader);
-        rentService.saveRent(rent);
+        bookRepository.save(book);
+        readerRepository.save(reader);
+        rentRepository.save(rent);
 
         //When
-        bookService.deleteBookById(book.getBookId());
+        assertDoesNotThrow(() -> {
+            bookService.deleteBookById(book.getBookId());
+        });
 
         //Then
         assertFalse(bookRepository.findById(book.getBookId()).isPresent());
@@ -108,10 +104,12 @@ public class BookEntityTest {
         book.getCopies().add(copy);
         book.getCopies().add(copy2);
 
-        bookService.saveBook(book);
+        bookRepository.save(book);
 
         //When
-        bookService.deleteBookById(book.getBookId());
+
+        assertThrows(CopiesNotReturnedException.class, () ->
+                bookService.deleteBookById(book.getBookId()));
 
         //Then
         assertTrue(bookRepository.findById(book.getBookId()).isPresent());

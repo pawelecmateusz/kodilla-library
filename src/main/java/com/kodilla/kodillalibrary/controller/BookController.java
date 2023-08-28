@@ -1,7 +1,9 @@
 package com.kodilla.kodillalibrary.controller;
 
+import com.kodilla.kodillalibrary.controller.exceptions.BookNotFoundException;
+import com.kodilla.kodillalibrary.controller.exceptions.CopiesNotReturnedException;
 import com.kodilla.kodillalibrary.domain.Book;
-import com.kodilla.kodillalibrary.domain.dto.BookDto;
+import com.kodilla.kodillalibrary.controller.dto.BookDto;
 import com.kodilla.kodillalibrary.mapper.BookMapper;
 import com.kodilla.kodillalibrary.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping(value = "{bookId}")
-    public ResponseEntity<BookDto> getBookById(@PathVariable Long bookId) {
+    public ResponseEntity<BookDto> getBookById(@PathVariable Long bookId) throws BookNotFoundException {
         return ResponseEntity.ok(bookMapper.mapToBookDto(bookService.getBookById(bookId)));
     }
 
@@ -47,7 +49,7 @@ public class BookController {
     }
 
     @DeleteMapping(value = "{bookId}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
+    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) throws CopiesNotReturnedException, BookNotFoundException {
         bookService.deleteBookById(bookId);
         return ResponseEntity.ok().build();
     }

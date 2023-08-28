@@ -1,7 +1,7 @@
 package com.kodilla.kodillalibrary.controller.exceptions;
 
-public class BookAlreadyReturned extends Exception {
-    public BookAlreadyReturned() {
+public class BookAlreadyReturnedException extends Exception {
+    public BookAlreadyReturnedException() {
         super("This book is already returned");
     }
 }

@@ -1,7 +1,9 @@
 package com.kodilla.kodillalibrary.controller;
 
+import com.kodilla.kodillalibrary.controller.exceptions.ReaderHasRentsException;
+import com.kodilla.kodillalibrary.controller.exceptions.ReaderNotFoundException;
 import com.kodilla.kodillalibrary.domain.Reader;
-import com.kodilla.kodillalibrary.domain.dto.ReaderDto;
+import com.kodilla.kodillalibrary.controller.dto.ReaderDto;
 import com.kodilla.kodillalibrary.mapper.ReaderMapper;
 import com.kodilla.kodillalibrary.service.ReaderService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ public class ReaderController {
     private final ReaderService readerService;
 
     @GetMapping(value = "{readerId}")
-    public ResponseEntity<ReaderDto> getReaderById(@PathVariable Long readerId) {
+    public ResponseEntity<ReaderDto> getReaderById(@PathVariable Long readerId) throws ReaderNotFoundException {
         return ResponseEntity.ok(readerMapper.mapToReaderDto(readerService.getReaderById(readerId)));
     }
 
@@ -38,7 +40,7 @@ public class ReaderController {
     }
 
     @DeleteMapping(value = "{readerId}")
-    public ResponseEntity<Void> deleteReader(@PathVariable Long readerId) {
+    public ResponseEntity<Void> deleteReader(@PathVariable Long readerId) throws ReaderHasRentsException, ReaderNotFoundException {
         readerService.deleteReaderById(readerId);
         return ResponseEntity.ok().build();
     }

@@ -1,15 +1,9 @@
 package com.kodilla.kodillalibrary.entities;
 
-import com.kodilla.kodillalibrary.domain.Book;
-import com.kodilla.kodillalibrary.domain.Copy;
-import com.kodilla.kodillalibrary.domain.Reader;
-import com.kodilla.kodillalibrary.domain.Rent;
-import com.kodilla.kodillalibrary.repository.ReaderRepository;
-import com.kodilla.kodillalibrary.repository.RentRepository;
-import com.kodilla.kodillalibrary.service.BookService;
-import com.kodilla.kodillalibrary.service.CopyService;
+import com.kodilla.kodillalibrary.controller.exceptions.ReaderHasRentsException;
+import com.kodilla.kodillalibrary.domain.*;
+import com.kodilla.kodillalibrary.repository.*;
 import com.kodilla.kodillalibrary.service.ReaderService;
-import com.kodilla.kodillalibrary.service.RentService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +11,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest
 public class ReaderEntityTest {
 
     @Autowired
-    private BookService bookService;
+    private BookRepository bookRepository;
 
     @Autowired
-    private CopyService copyService;
+    private CopyRepository copyRepository;
 
     @Autowired
     private ReaderRepository readerRepository;
@@ -39,9 +31,6 @@ public class ReaderEntityTest {
 
     @Autowired
     private RentRepository rentRepository;
-
-    @Autowired
-    private RentService rentService;
 
     @Test
     void shouldNotDeleteReader() {
@@ -65,13 +54,14 @@ public class ReaderEntityTest {
 
         book.getCopies().add(copy);
         reader.getRents().add(rent);
-        bookService.saveBook(book);
-        copyService.saveCopy(copy);
-        readerService.saveReader(reader);
-        rentService.saveRent(rent);
+        bookRepository.save(book);
+        copyRepository.save(copy);
+        readerRepository.save(reader);
+        rentRepository.save(rent);
 
         //When
-        readerService.deleteReaderById(reader.getReaderId());
+        assertThrows(ReaderHasRentsException.class, () ->
+                readerService.deleteReaderById(reader.getReaderId()));
 
         //Then
         assertTrue(readerRepository.findById(reader.getReaderId()).isPresent());
@@ -102,13 +92,14 @@ public class ReaderEntityTest {
         reader.getRents().add(rent);
         rent.setRentDate(LocalDate.now());
         rent.setReturnDate(LocalDate.now().plusDays(7));
-        bookService.saveBook(book);
-        copyService.saveCopy(copy);
-        readerService.saveReader(reader);
-        rentService.saveRent(rent);
+        bookRepository.save(book);
+        copyRepository.save(copy);
+        readerRepository.save(reader);
+        rentRepository.save(rent);
 
         //When
-        readerService.deleteReaderById(reader.getReaderId());
+        assertDoesNotThrow(() ->
+                readerService.deleteReaderById(reader.getReaderId()));
 
         //Then
         assertFalse(readerRepository.findById(reader.getReaderId()).isPresent());

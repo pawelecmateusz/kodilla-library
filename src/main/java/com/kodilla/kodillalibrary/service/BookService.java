@@ -7,62 +7,60 @@ import com.kodilla.kodillalibrary.domain.Copy;
 import com.kodilla.kodillalibrary.repository.BookRepository;
 import com.kodilla.kodillalibrary.repository.CopyRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
 import java.util.List;
 
-@Transactional
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
+
+    private final CopyRepository copyRepository;
 
     @Autowired
-    private CopyRepository copyRepository;
+    public BookService(BookRepository bookRepository, CopyRepository copyRepository) {
+        this.bookRepository = bookRepository;
+        this.copyRepository = copyRepository;
+    }
 
+    @Transactional
     public Book saveBook(final Book book) {
         return bookRepository.save(book);
     }
 
-    public Book getBookById(final Long bookId) {
-        try {
-            return bookRepository.findById(bookId).orElseThrow(BookNotFoundException::new);
-        } catch (BookNotFoundException e) {
-            System.out.println(e.getMessage());
-            return Book.builder().build();
-        }
+    public Book getBookById(final Long bookId) throws BookNotFoundException {
+        return bookRepository.findById(bookId).orElseThrow(BookNotFoundException::new);
     }
 
     public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+        return (List<Book>) bookRepository.findAll();
     }
 
-    public void deleteBookById(final Long bookId) {
-        try {
-            Book book = bookRepository.findById(bookId).orElseThrow(BookNotFoundException::new);
-            List<Copy> copies = book.getCopies();
+    @Transactional
+    public void deleteBookById(final Long bookId) throws BookNotFoundException, CopiesNotReturnedException {
 
-            Iterator<Copy> iterator = copies.iterator();
-            while (iterator.hasNext()) {
-                Copy copy = iterator.next();
-                if (copy.getStatus().equals("available")) {
-                    iterator.remove();
-                    copyRepository.deleteById(copy.getCopyId());
-                }
+        Book book = bookRepository.findById(bookId).orElseThrow(BookNotFoundException::new);
+        List<Copy> copies = book.getCopies();
+
+        Iterator<Copy> iterator = copies.iterator();
+        while (iterator.hasNext()) {
+            Copy copy = iterator.next();
+            if ("available".equals(copy.getStatus())) {
+                iterator.remove();
+                copyRepository.deleteById(copy.getCopyId());
             }
-            if (copies.isEmpty()) {
-                bookRepository.deleteById(bookId);
-            } else {
-                throw new CopiesNotReturnedException();
-            }
-        } catch (CopiesNotReturnedException | BookNotFoundException e) {
-            System.out.println(e.getMessage());
         }
+        if (copies.isEmpty()) {
+            bookRepository.deleteById(bookId);
+        } else {
+            throw new CopiesNotReturnedException();
+        }
+
     }
 
     public int getAvailableCopies(final Long bookId) {

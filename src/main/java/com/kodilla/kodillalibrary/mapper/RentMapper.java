@@ -1,7 +1,9 @@
 package com.kodilla.kodillalibrary.mapper;
 
+import com.kodilla.kodillalibrary.controller.exceptions.CopyNotFoundException;
+import com.kodilla.kodillalibrary.controller.exceptions.ReaderNotFoundException;
 import com.kodilla.kodillalibrary.domain.Rent;
-import com.kodilla.kodillalibrary.domain.dto.RentDto;
+import com.kodilla.kodillalibrary.controller.dto.RentDto;
 import com.kodilla.kodillalibrary.service.CopyService;
 import com.kodilla.kodillalibrary.service.ReaderService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,7 @@ public class RentMapper {
 
     private final CopyService copyService;
 
-    public Rent mapToRent(final RentDto rentDto) {
+    public Rent mapToRent(final RentDto rentDto) throws CopyNotFoundException, ReaderNotFoundException {
         return Rent.builder()
                 .rentId(rentDto.getRentId())
                 .copy(copyService.getCopyById(rentDto.getCopyId()))

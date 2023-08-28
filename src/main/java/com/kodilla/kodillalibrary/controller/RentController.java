@@ -1,7 +1,8 @@
 package com.kodilla.kodillalibrary.controller;
 
+import com.kodilla.kodillalibrary.controller.exceptions.*;
 import com.kodilla.kodillalibrary.domain.Rent;
-import com.kodilla.kodillalibrary.domain.dto.RentDto;
+import com.kodilla.kodillalibrary.controller.dto.RentDto;
 import com.kodilla.kodillalibrary.mapper.RentMapper;
 import com.kodilla.kodillalibrary.service.RentService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class RentController {
     private final RentService rentService;
 
     @GetMapping(value = "{rentId}")
-    public ResponseEntity<RentDto> getRentById(@PathVariable Long rentId) {
+    public ResponseEntity<RentDto> getRentById(@PathVariable Long rentId) throws RentNotFoundException {
         return ResponseEntity.ok(rentMapper.mapToRentDto(rentService.getRentById(rentId)));
     }
 
@@ -31,14 +32,14 @@ public class RentController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RentDto> createRent(@RequestBody RentDto rentDto) {
+    public ResponseEntity<RentDto> createRent(@RequestBody RentDto rentDto) throws CopyNotFoundException, CopyCurrentlyRentedException, ReaderNotFoundException {
         Rent rent = rentMapper.mapToRent(rentDto);
         rentService.rentABook(rent.getCopy(), rent.getReader());
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "{rentId}")
-    public ResponseEntity<Object> returnRent(@PathVariable Long rentId) {
+    public ResponseEntity<Object> returnRent(@PathVariable Long rentId) throws RentNotFoundException, BookAlreadyReturnedException {
         rentService.returnABook(rentId);
         return ResponseEntity.ok().build();
     }

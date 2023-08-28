@@ -1,7 +1,10 @@
 package com.kodilla.kodillalibrary.controller;
 
+import com.kodilla.kodillalibrary.controller.exceptions.BookNotFoundException;
+import com.kodilla.kodillalibrary.controller.exceptions.CopyCurrentlyRentedException;
+import com.kodilla.kodillalibrary.controller.exceptions.CopyNotFoundException;
 import com.kodilla.kodillalibrary.domain.Copy;
-import com.kodilla.kodillalibrary.domain.dto.CopyDto;
+import com.kodilla.kodillalibrary.controller.dto.CopyDto;
 import com.kodilla.kodillalibrary.mapper.CopyMapper;
 import com.kodilla.kodillalibrary.service.CopyService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +24,7 @@ public class CopyController {
     private final CopyService copyService;
 
     @GetMapping(value = "{copyId}")
-    public ResponseEntity<CopyDto> getCopyById(@PathVariable Long copyId) {
+    public ResponseEntity<CopyDto> getCopyById(@PathVariable Long copyId) throws CopyNotFoundException {
         return ResponseEntity.ok(copyMapper.mapToCopyDto(copyService.getCopyById(copyId)));
     }
 
@@ -31,20 +34,20 @@ public class CopyController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CopyDto> createCopy(@RequestBody CopyDto copyDto) {
+    public ResponseEntity<CopyDto> createCopy(@RequestBody CopyDto copyDto) throws BookNotFoundException {
         Copy copy = copyMapper.mapToCopy(copyDto);
         copyService.saveCopy(copy);
         return ResponseEntity.ok().build();
     }
     @PutMapping
-    public ResponseEntity<CopyDto> updateCopy(@RequestBody CopyDto copyDto) {
+    public ResponseEntity<CopyDto> updateCopy(@RequestBody CopyDto copyDto) throws BookNotFoundException {
         Copy copy = copyMapper.mapToCopy(copyDto);
         Copy savedCopy = copyService.saveCopy(copy);
         return ResponseEntity.ok(copyMapper.mapToCopyDto(savedCopy));
     }
 
     @DeleteMapping(value = "{copyId}")
-    public ResponseEntity<Void> deleteCopy(@PathVariable Long copyId) {
+    public ResponseEntity<Void> deleteCopy(@PathVariable Long copyId) throws CopyNotFoundException, CopyCurrentlyRentedException {
         copyService.deleteCopyById(copyId);
         return ResponseEntity.ok().build();
     }
